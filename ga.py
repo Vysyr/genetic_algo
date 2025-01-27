@@ -51,15 +51,33 @@ class GeneticAlgorithm:
             weights = [self._fitness(individual, v, c, C) for individual in self.population]
             total_fitness = sum(weights)
             probabilities = [w / total_fitness for w in weights]
-            return random.choices(self.population, probabilities, k=2)
+            parents = random.choices(self.population, probabilities, k=2)
+            iters = 0
+            while iters < 3 and parents[0].all() == parents[1].all():
+                parents = random.choices(self.population, probabilities, k=2)
+                iters+=1
+            return parents
         
         elif self.selection_type == "rank":
             # Selekcja rankingowa
             fitness_values = np.array([self._fitness(individual, v, c, C) for individual in self.population])
             sorted_indices = np.argsort(fitness_values)[::-1]
             sorted_population = self.population[sorted_indices]
-            parents = sorted_population[:2]
-            return parents[0], parents[1]
+            m = len(self.population)
+            ranks = np.arange(m, 0, -1)
+            probabilities = (2 * ranks)/(m * (m + 1))
+            parents = random.choices(self.population, probabilities, k=2)
+            iters = 0
+            while iters < 3 and parents[0].all() == parents[1].all():
+                parents = random.choices(self.population, probabilities, k=2)
+                iters+=1
+            return parents
+        
+        elif self.selection_type == "eugenic":
+            fitness_values = np.array([self._fitness(individual, v, c, C) for individual in self.population])
+            sorted_indices = np.argsort(fitness_values)[::-1]
+            sorted_population = self.population[sorted_indices]
+            return sorted_population[0], sorted_population[1]
 
     def _crossover(self, parent1, parent2):
         if random.random() < self.crossover_rate:
@@ -125,6 +143,6 @@ class GeneticAlgorithm:
         plt.title('Przystosowanie w trakcie pokolen')
         plt.show()
         
-# Funkcja przystosowania dla plecaka
+# Funkcja przystosowania
 def fitness_function(individual, v, c, C):
     return np.dot(individual, v) if np.dot(individual, c) <= C else 0

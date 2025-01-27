@@ -79,9 +79,10 @@ if __name__ == '__main__':
     print(f"Wartosc rozwiazania dokladnego: {best_pack_value}")
     # Uruchomienie algorytmu genetycznego
     #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, generations=100, selection_type="roulette", crossover_type="single", penalty_type="soft")
-    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, generations=100, selection_type="roulette", crossover_type="double", penalty_type="soft")
+    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.5, generations=100, selection_type="roulette", crossover_type="double", penalty_type="soft")
     #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, generations=100, selection_type="rank", crossover_type="single", penalty_type="soft")
-    ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, generations=100, selection_type="rank", crossover_type="double", penalty_type="hard")
+    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate = 0.1, generations=100, selection_type="rank", crossover_type="double", penalty_type="hard")
+    ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate = 0.01, generations=100, selection_type="eugenic", crossover_type="double", penalty_type="hard")
     best_solution, best_fitness = ga.run(v, c, C, best_pack_value, exact_solution)
 
 
