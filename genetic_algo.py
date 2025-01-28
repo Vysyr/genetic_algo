@@ -1,7 +1,8 @@
-import numpy as np
+ï»¿import numpy as np
 import time as time
 from ga import GeneticAlgorithm
 from ga import fitness_function
+import matplotlib.pyplot as plt
 
 def random_knapsack_problem(n=100, scale=10**5, seed=None):
     if seed is not None:
@@ -68,37 +69,112 @@ def prev_main():
     print("PACK CAPACITY CHECK: " + str(solution.dot(c)))
     
 if __name__ == '__main__':
-    # Przyk³ad z rozwi¹zaniem plecaka
+    # Przykï¿½ad z rozwiazaniem plecaka
     n = 100
     scale = 2000
     v, c, C = random_knapsack_problem(n=n, scale=scale)
-
-    print("Obliczanie rozwiazania dokladnego...")
-    # Obliczenia dla dok³adnego rozwi¹zania
+    
+    print("RANDOM KNAPSACK PROBLEM:")
+    print(f"v: {v}")
+    print(f"c: {c}")
+    print(f"C: {C}")
+    
+    print("\n\nTestowane algorytmy genetyczne:")
+    print("RUSS - Selekcja ruletkowa, krzyzowanie jednopunktowe, lagodna kara")
+    print("RUDH - Selekcja ruletkowa, krzyzowanie dwupunktowe, drastyczna kara")
+    print("RKSS - Selekcja rankingowa, krzyzowanie jednopunktowe, lagodna kara")
+    print("RKDH - Selekcja rankingowa, krzyzowanie dwupunktowe, drastyczna kara")
+    #print("XD - Selekcja tylko 2 najlepszych osobnikow, krzyzowanie dwupunktowe, drastyczna kara")
+    print("\n\nObliczanie rozwiazania dokladnego poprzez programowanie dynamiczne...", end="\r")
+    # Obliczenia dla dokï¿½adnego rozwiï¿½zania
+    start_time = time.time()
     best_pack_value, exact_solution = knapsack_problem_dp_solve(v, c, C)
-    print(f"Wartosc rozwiazania dokladnego: {best_pack_value}")
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Obliczanie rozwiazania dokladnego poprzez programowanie dynamiczne... {duration:.2f}s")
+
     # Uruchomienie algorytmu genetycznego
-    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, generations=100, selection_type="roulette", crossover_type="single", penalty_type="soft")
-    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.5, generations=100, selection_type="roulette", crossover_type="double", penalty_type="soft")
-    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, generations=100, selection_type="rank", crossover_type="single", penalty_type="soft")
-    #ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate = 0.1, generations=100, selection_type="rank", crossover_type="double", penalty_type="hard")
-    ga = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate = 0.01, generations=100, selection_type="eugenic", crossover_type="double", penalty_type="hard")
-    best_solution, best_fitness = ga.run(v, c, C, best_pack_value, exact_solution)
-
-
+    gaRUSS = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.001, generations=100, selection_type="roulette", crossover_type="single", penalty_type="soft")
+    gaRUDH = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.001, generations=100, selection_type="roulette", crossover_type="double", penalty_type="hard")
+    gaRKSS = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.001, generations=100, selection_type="rank", crossover_type="single", penalty_type="soft")
+    gaRKDH = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.001, generations=100, selection_type="rank", crossover_type="double", penalty_type="hard")
+    #gaXD = GeneticAlgorithm(n=n, fitness_function=fitness_function, population_size=1000, mutation_rate=0.01, generations=100, selection_type="eugenic", crossover_type="double", penalty_type="hard")
+    print("\nObliczanie RUSS")
+    start_time = time.time()
+    best_solutionRUSS, best_fitnessRUSS = gaRUSS.run(v, c, C, best_pack_value, exact_solution)
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Generacja: 100/100 {duration:.2f}s")
+    print("\nObliczanie RUDH")
+    start_time = time.time()
+    best_solutionRUDH, best_fitnessRUDH = gaRUDH.run(v, c, C, best_pack_value, exact_solution)
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Generacja: 100/100 {duration:.2f}s")
+    print("\nObliczanie RKSS")
+    start_time = time.time()
+    best_solutionRKSS, best_fitnessRKSS = gaRKSS.run(v, c, C, best_pack_value, exact_solution)
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Generacja: 100/100 {duration:.2f}s")
+    print("\nObliczanie RKDH")    
+    start_time = time.time()
+    best_solutionRKDH, best_fitnessRKDH = gaRKDH.run(v, c, C, best_pack_value, exact_solution)
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Generacja: 100/100 {duration:.2f}s")
+    print("\n\n")
+    all_fits = [best_fitnessRUSS, best_fitnessRUDH, best_fitnessRKSS, best_fitnessRKDH]
+    all_sols = [best_solutionRUSS, best_solutionRUDH, best_solutionRKSS, best_solutionRKDH]
+    all_errs = [gaRUSS.history_erros[gaRUSS.generations-1], gaRUDH.history_erros[gaRUDH.generations-1], gaRKSS.history_erros[gaRKSS.generations-1], gaRKDH.history_erros[gaRKDH.generations-1]]
+    i = np.argmin(all_errs)
+    best_solution = all_sols[i]
+    best_fitness = all_fits[i]
     print(f"Najlepsze rozwiazanie genetyczne: {best_solution}")
-
-    # Porównanie rozwi¹zania genetycznego i dok³adnego
+    algo_names = ["RUSS", "RUDH", "RKSS", "RKDH"]
+    best_solution_name = algo_names[i]
+    
+    # Porownanie rozwiazania genetycznego i dokladnego
     genetic_capacity = np.dot(best_solution, c)
     exact_value = best_pack_value
     exact_capacity = np.dot(exact_solution, c)
-
-    print(f"Wartosc rozwiazania genetycznego: {best_fitness}")
+    print("Rodzaj algorytmu | Najlepsze przystosowanie | Koncowy blad | Zgodnosc bitowa")
+    print(f"RUSS:              {best_fitnessRUSS}                    | {gaRUSS.history_erros[gaRUSS.generations-1]:.2f}%      | {gaRUSS.history_bit_comp[gaRUSS.generations-1]:.2f}%")
+    print(f"RUDH:              {best_fitnessRUDH}                    | {gaRUDH.history_erros[gaRUDH.generations-1]:.2f}%      | {gaRUDH.history_bit_comp[gaRUDH.generations-1]:.2f}%")
+    print(f"RKSS:              {best_fitnessRKSS}                    | {gaRKSS.history_erros[gaRKSS.generations-1]:.2f}%      | {gaRKSS.history_bit_comp[gaRKSS.generations-1]:.2f}%")
+    print(f"RKDH:              {best_fitnessRKDH}                    | {gaRKDH.history_erros[gaRKDH.generations-1]:.2f}%      | {gaRKDH.history_bit_comp[gaRKDH.generations-1]:.2f}%")
     print(f"Wartosc rozwiazania dokladnego: {exact_value}")
-    print(f"Stosunek wartosci genetycznego do dokladnego: {best_fitness / exact_value:.2f}")
+    print(f"Najlepsze rozwiazanie genetyczne: {best_solution_name}")
+    print(f"Stosunek wartosci najlepszego rozwiazania genetycznego do dokladnego: {best_fitness / exact_value:.2f}")
+    ER = abs((best_fitness - exact_value)/exact_value) * 100
+    print(f"Blad do rozwiazania dokladnego: {ER:.2f}%")
     print(f"Procentowa zgodnosc bitowa: {np.sum(best_solution == exact_solution) / n * 100:.2f}%")
 
-    # Rysowanie wykresu przystosowania
-    ga.plot_fitness()
+
+    exact_plot = np.array([exact_value] * 100)
+    plt.subplot(1,2,1)
+    plt.plot(exact_plot, label = "wartosc dokladna", color = 'r')
+    plt.plot(gaRUSS.history_fitness, label = "RUSS", color = 'b')
+    plt.plot(gaRUDH.history_fitness, label = "RUDH", color = 'g')
+    plt.plot(gaRKSS.history_fitness, label = "RKSS", color = 'y')
+    plt.plot(gaRKDH.history_fitness, label = "RKDH", color = 'c')
+    plt.xlabel('Generacja')
+    plt.ylabel('Najlepsze przystosowanie')
+    plt.title('Przystosowanie w trakcie pokolen')
+    plt.legend()
+    
+    plt.subplot(1,2,2)
+    plt.plot(gaRUSS.history_erros, label = "RUSS", color = 'b')
+    plt.plot(gaRUDH.history_erros, label = "RUDH", color = 'g')
+    plt.plot(gaRKSS.history_erros, label = "RKSS", color = 'y')
+    plt.plot(gaRKDH.history_erros, label = "RKDH", color = 'c')
+    plt.xlabel('Generacja')
+    plt.ylabel('Blad do dokladnej wartosci')
+    plt.title('Blad w trakcie pokolen')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+    # Rysowanie wykresu
 
     
