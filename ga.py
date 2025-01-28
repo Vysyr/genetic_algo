@@ -88,7 +88,7 @@ class GeneticAlgorithm:
             
             if(self.selection_type == "roulette"):
                 self.total_fitness = sum(self.weights)
-                self.probabilitiesRU = [w / self.total_fitness for w in self.weights]
+                self.probabilitiesRU = self.weights / self.total_fitness
             elif (self.selection_type == "rank"):
                 m = len(self.population)
                 ranks = np.arange(m, 0, -1)
@@ -135,8 +135,8 @@ def fitness_function(individual, v, c, C, penalty_type):
     weight = np.dot(individual, c)
     if weight > C:
         if penalty_type == "soft":
-            penalty = (weight - C)  # Miekka kara
+            penalty = abs(1.0 * weight/C)-1.0  # Miekka kara - tyle o ile przekroczyl
         elif penalty_type == "hard":
-            penalty = (weight - C) * 10 # Drastyczna kara
-            return value - penalty
+            return 0 # Drastyczna kara
+        return int(value - value * penalty)
     return value
